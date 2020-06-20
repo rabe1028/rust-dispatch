@@ -281,6 +281,13 @@ impl Queue {
     pub fn suspend(&self) -> SuspendGuard {
         SuspendGuard::new(self)
     }
+
+    /// Get raw ptr for some ffi
+    pub unsafe fn into_raw(&self) -> dispatch_queue_t {
+        unsafe {
+            self.ptr
+        }
+    }
 }
 
 unsafe impl Sync for Queue { }
@@ -502,5 +509,13 @@ mod tests {
         guard.resume();
         q.exec_sync(|| ());
         assert_eq!(*num.lock().unwrap(), 1);
+    }
+
+    #[test]
+    fn test_into_raw() {
+        let q = Queue::create("", QueueAttribute::Serial);
+        unsafe {
+            let raw = q.into_raw();
+        }
     }
 }
